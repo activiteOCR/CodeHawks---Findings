@@ -167,9 +167,17 @@ https://github.com/Cyfrin/2024-03-kitty-connect/blob/c0a6f2bb5c853d7a470eb684e19
 
 ## Summary
 
+In the KittyConnect smart contract, particularly within the addShop function, there's a potential vulnerability due to the absence of checks against the insertion of duplicate addresses into the `s_kittyShops` array. This flaw can lead to redundant entries for the same shop address in the array, which might not only waste storage space and increase transaction costs but also impact the logic and financial operations depending on how the array is utilized.
+
 ## Vulnerability Details
 
+The core of the vulnerability lies in the contract's method for adding new shop addresses to the s_kittyShops array without verifying if the address is already present. The addShop function simply appends the new shop address to the array, assuming it is not already included, without performing any checks against the existing entries.
+
+Solidity arrays do not inherently prevent duplicate entries, so without explicit validation, the same address can be added multiple times. This oversight can lead to several issues.
+
 ## Impact
+
+Increased gas costs for operations that iterate over the `s_kittyShops` array, as the same address
 
 ## Tools Used
 
