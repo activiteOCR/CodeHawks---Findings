@@ -7,7 +7,7 @@
 - ## High Risk Findings
   - ### [](#H-01)
 - ## Medium Risk Findings
-  - ### [M-01. ](#M-01)
+  - ### [M-01. `kittyConnect:bridgeNftToAnotherChain` ignores return value by i_kittyBridge.bridgeNftWithData(destChainSelector,destChainBridge,data).](#M-01)
 - ## Low Risk Findings
 
   - ### [L-01. `KittyConnect::addShop` Functions that iterate over the array can become vectors for denial-of-service (DoS) attacks if they're not properly protected.](#L-01)
@@ -29,8 +29,8 @@
 ### Number of findings:
 
 - High:
-- Medium:
-- Low:
+- Medium: 1
+- Low: 3
 
 # High Risk Findings
 
@@ -50,19 +50,31 @@
 
 # Medium Risk Findings
 
-## <a id='M-01'></a>M-01.
+## <a id='M-01'>`kittyConnect:bridgeNftToAnotherChain` ignores return value by i_kittyBridge.bridgeNftWithData(destChainSelector,destChainBridge,data).</a>M-01.
 
 ### Relevant GitHub Links
 
+https://github.com/Cyfrin/2024-03-kitty-connect/blob/c0a6f2bb5c853d7a470eb684e1954dba261fb167/src/KittyConnect.sol#L151
+
 ## Summary
+
+The return value of an external call is not stored in a local or state variable.
 
 ## Vulnerability Details
 
+KittyConnect calls bridgeNftWithData of KittyBridge, but does not store the result in i_kittyBridge.
+
 ## Impact
+
+As a result, the computation has no effect.
 
 ## Tools Used
 
+Slither
+
 ## Recommendations
+
+Ensure that all the return values of the function calls are used.
 
 # Low Risk Findings
 
