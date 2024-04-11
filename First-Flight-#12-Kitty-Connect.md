@@ -131,7 +131,7 @@ The onlyOwner() modifier provided by OpenZeppelin's Ownable contract is a widely
 
 ## Impact
 
-Implementing custom access control logic introduces the potential for security vulnerabilities, especially if the custom implementation is not thoroughly tested and audited.
+Implementing custom access control logic introduces the potential for security vulnerabilities.
 
 ## Tools Used
 
