@@ -5,7 +5,7 @@
 - ## [Contest Summary](#contest-summary)
 - ## [Results Summary](#results-summary)
 - ## High Risk Findings
-  - ### [H-01. `MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restictions](#H-01)
+  - ### [H-01. `MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions](#H-01)
 - ## Medium Risk Findings
   - ### [M-01.](#M-01)
 - ## Low Risk Findings
@@ -34,7 +34,7 @@
 
 # High Risk Findings
 
-## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restictions</a>H-01.
+## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions</a>H-01.
 
 ### Relevant GitHub Links
 
@@ -46,7 +46,7 @@ in `MartenitsaToken:updateCountMartenitsaTokensOwner` users can update the count
 
 ## Vulnerability Details
 
-By updating the count of martenitsaTokens without any restriction users will be able to drain HealthToken.
+By updating the count of martenitsaTokens without any restriction users will be able to mint HealthToken indefinitely.
 
 1. Update count of martenitsaTokens with `MartenitsaToken:updateCountMartenitsaTokensOwner`
 2. Collect the number of HealthTokens in proportion to the number of (fake) tokens you have (1 HealthToken for 3 fake MartenitsaTokens) by calling `MartenitsaMarketplace:collectReward`.
@@ -85,19 +85,31 @@ manuel review
 
 # Medium Risk Findings
 
-## <a id='M-01'></a>M-01.
+## <a id='M-01'>`MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.</a>M-01.
 
 ### Relevant GitHub Links
 
+https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaMarketplace.sol#L104
+
 ## Summary
+
+`MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token during an event and rebuy 3 others later, at this time user won't be able to claim his new healthtoken.
 
 ## Vulnerability Details
 
+If a user first buys 3 martenitsa tokens, claims his healthtoken, sells his 3 martenitsa tokens during an event and later buys 3 new martenitsa tokens, he will no longer be able to claim a new health token because in `MartenitsaMarketplace:collectReward` line 104 of MartenitsaMarketplace contract the `_collectedRewards` is subtracted from the `amountRewards` and as `mapping(address => uint256) private _collectedRewards;` mapping is not reset to zero after the first 3 tokens have been sold, the `amountRewards` will be equal to zero instead of 1.
+
 ## Impact
+
+user won't receive his HealthToken despite having 3 new martenitsa tokens
 
 ## Tools Used
 
+Manuel review
+
 ## Recommendations
+
+Track the number of sales per user and decrement by 1 `mapping(address => uint256) private \_collectedRewards; every 3 sales of martenitsa token per user.
 
 # Low Risk Findings
 
@@ -113,7 +125,7 @@ In `MartenitsaToken::createMartenitsa` design @param is not properly checked, so
 
 ## Vulnerability Details
 
-the require control structure (L37 of MartenitsaToken.sol) does not correctly control the "Design" input parameter.
+The require control structure (L37 of MartenitsaToken.sol) does not correctly control the "Design" input parameter.
 
 ```cpp
 function testCreateMartenitsaCalledWithDesignEqualZero() public {
@@ -123,7 +135,7 @@ function testCreateMartenitsaCalledWithDesignEqualZero() public {
     }
 ```
 
-```c
+```cpp
 require(bytes(design).length > 0, "Design cannot be empty");
 ```
 
