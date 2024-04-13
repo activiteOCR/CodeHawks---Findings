@@ -112,7 +112,7 @@ Manuel review
 
 Track the number of sales per user and decrement by 1 `mapping(address => uint256) private \_collectedRewards; every 3 sales of martenitsa token per user.
 
-## <a id='M-02'>`MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.</a>M-01.
+## <a id='M-02'>`MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.</a>M-02.
 
 ### Relevant GitHub Links
 
@@ -143,9 +143,19 @@ Manuel review
 
 ## Recommendations
 
-Check if caller is a producer if yes revert the transaction.
+Check if caller is a producer if yes revert the transaction, add an interface to access to isProducer and refactor the constructor of MartenitsaVoting contract
 
 ```cpp
+interface IMartenitsaToken {
+    function isProducer(address producer) external view returns (bool);
+}
+
+constructor(address marketplace, address healthToken, address _martenitsaToken) Ownable(msg.sender) {
+        _martenitsaMarketplace = MartenitsaMarketplace(marketplace);
+        _healthToken = HealthToken(healthToken);
+        martenitsaToken = IMartenitsaToken(_martenitsaToken);
+    }
+
 /**
      * @notice Function to vote for martenitsa of the sale list.
      * @param tokenId The tokenId of the martenitsa.
