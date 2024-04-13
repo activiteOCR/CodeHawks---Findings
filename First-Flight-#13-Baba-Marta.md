@@ -7,7 +7,8 @@
 - ## High Risk Findings
   - ### [H-01. `MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions](#H-01)
 - ## Medium Risk Findings
-  - ### [M-01.](#M-01)
+  - ### [M-01. `MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.](#M-01)
+  - ### [M-02. `MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.](#M-02)
 - ## Low Risk Findings
 
   - ### [L-01. `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning](#L-01)
@@ -101,7 +102,7 @@ If a user first buys 3 martenitsa tokens, claims his healthtoken, sells his 3 ma
 
 ## Impact
 
-user won't receive his HealthToken despite having 3 new martenitsa tokens
+User won't receive his HealthToken despite having 3 new martenitsa tokens
 
 ## Tools Used
 
@@ -110,6 +111,57 @@ Manuel review
 ## Recommendations
 
 Track the number of sales per user and decrement by 1 `mapping(address => uint256) private \_collectedRewards; every 3 sales of martenitsa token per user.
+
+## <a id='M-02'>`MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.</a>M-01.
+
+### Relevant GitHub Links
+
+## Summary
+
+`MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event. After listing any producer is able to vote for his martenitsa token.
+
+## Vulnerability Details
+
+`voteForMartenitsa` function don't check if the caller is a producer as demonstrated in the test bellow just after listing his token chasy who is a producer is able to vote for his martenitsa token.
+
+```cpp
+function testProducerVoteForMartenitsa() public listMartenitsa {
+        vm.prank(chasy);
+        voting.voteForMartenitsa(0);
+        assert(voting.hasVoted(chasy) == true);
+        assert(voting.voteCounts(0) == 1);
+    }
+```
+
+## Impact
+
+Vote system can be unfair because producer can vote for its creations.
+
+## Tools Used
+
+Manuel review
+
+## Recommendations
+
+Check if caller is a producer if yes revert the transaction.
+
+```cpp
+/**
+     * @notice Function to vote for martenitsa of the sale list.
+     * @param tokenId The tokenId of the martenitsa.
+     */
+    function voteForMartenitsa(uint256 tokenId) external {
+        require(!hasVoted[msg.sender], "You have already voted");
+        require(!martenitsaToken.isProducer(msg.sender), "You are producer and not eligible for voting!");
+        require(block.timestamp < startVoteTime + duration, "The voting is no longer active");
+        list = _martenitsaMarketplace.getListing(tokenId);
+        require(list.forSale, "You are unable to vote for this martenitsa");
+
+        hasVoted[msg.sender] = true;
+        voteCounts[tokenId] += 1;
+        _tokenIds.push(tokenId);
+    }
+```
 
 # Low Risk Findings
 
