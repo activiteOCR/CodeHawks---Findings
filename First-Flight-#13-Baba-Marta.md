@@ -36,7 +36,7 @@
 
 # High Risk Findings
 
-## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions </a H-01>
+## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions </a>
 
 ### Relevant GitHub Links
 
@@ -85,7 +85,7 @@ manuel review
 
 `MartenitsaToken:updateCountMartenitsaTokensOwner` must be only called by MartenitsaMarketplace contract using internal visibility specifier instead of external. Therefore you will have to refactor correctly MartenitsaMarketplace contract.
 
-## <a id='H-02'>`MartenitsaVoting` time assignment of duration variable not correct. </a>H-02
+## <a id='H-02'>`MartenitsaVoting` time assignment of duration variable not correct. </a>
 
 https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaVoting.sol#L15
 
@@ -198,7 +198,7 @@ Or use a function to calculate dynamically the blocktime average and refactor
 
 # Medium Risk Findings
 
-## <a id='M-01'>`MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.</a>M-01.
+## <a id='M-01'>`MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.</a>
 
 ### Relevant GitHub Links
 
@@ -224,7 +224,7 @@ Manuel review
 
 Track the number of sales per user and decrement by 1 `mapping(address => uint256) private \_collectedRewards; every 3 sales of martenitsa token per user.
 
-## <a id='M-02'>`MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.</a>M-02.
+## <a id='M-02'>`MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.</a>
 
 ### Relevant GitHub Links
 
@@ -287,7 +287,7 @@ constructor(address marketplace, address healthToken, address _martenitsaToken) 
 
 # Low Risk Findings
 
-## <a id='L-01'> `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning </a>L-01.
+## <a id='L-01'> `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning </a>
 
 ### Relevant GitHub Links
 
@@ -359,7 +359,7 @@ So whitespace and horzontal tab won't be accepted as design character but you ca
     }
 ```
 
-## <a id='L-02'>`MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks.</a>L-02.
+## <a id='L-02'>`MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks.</a>
 
 ### Relevant GitHub Links
 
@@ -406,7 +406,7 @@ Add a second check in require structure control in `MartenitsaVoting:voteForMart
 require(startVoteTime != 0 && block.timestamp < startVoteTime + duration, "The voting is no longer active");
 ```
 
-## <a id='L-03'> </a>L-03.
+## <a id='L-03'> </a>
 
 ### Relevant GitHub Links
 
