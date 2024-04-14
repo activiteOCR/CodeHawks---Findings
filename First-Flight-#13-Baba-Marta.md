@@ -6,7 +6,7 @@
 - ## [Results Summary](#results-summary)
 - ## High Risk Findings
   - ### [H-01. `MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions](#H-01)
-  - ### [H-02. ](#H-02)
+  - ### [H-02. `MartenitsaVoting` time assignment of duration variable not correct.](#H-02)
 - ## Medium Risk Findings
   - ### [M-01. `MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.](#M-01)
   - ### [M-02. `MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.](#M-02)
@@ -30,9 +30,9 @@
 
 ### Number of findings:
 
-- High: 1
-- Medium:
-- Low: 1
+- High: 2
+- Medium: 2
+- Low: 2
 
 # High Risk Findings
 
@@ -84,6 +84,117 @@ manuel review
 ## Recommendations
 
 `MartenitsaToken:updateCountMartenitsaTokensOwner` must be only called by MartenitsaMarketplace contract using internal visibility specifier instead of external. Therefore you will have to refactor correctly MartenitsaMarketplace contract.
+
+## <a id='H-02'>`MartenitsaVoting` time assignment of duration variable not correct.</a>H-02.
+
+https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaVoting.sol#L15
+
+## Summary
+
+`MartenitsaVoting` time assignment of duration variable not correct. in `MartenitsaVoting` developers have assigned the variable duration 1 days as value instead of the equivalent of 1 day in block time
+
+## Vulnerability Details
+
+in `MartenitsaVoting` developers have assigned the variable duration 1 days as value which is equivalent to 86,400 seconds (24 hours x 60 minutes x 60 seconds).
+
+```cpp
+ uint256 public duration = 1 days;
+```
+
+Duration variable is used in `MartenitsaVoting:voteForMartenitsa` and `MartenitsaVoting:announceWinner` in require control structure of these two functions
+
+```cpp
+/**
+     * @notice Function to vote for martenitsa of the sale list.
+     * @param tokenId The tokenId of the martenitsa.
+     */
+    function voteForMartenitsa(uint256 tokenId) external {
+        require(!hasVoted[msg.sender], "You have already voted");
+        require(!martenitsaToken.isProducer(msg.sender), "You are producer and not eligible for voting!");
+        console.log("startVoteTime: %d + duration: %d", startVoteTime, duration);
+        require(startVoteTime != 0 && block.timestamp < startVoteTime + duration, "The voting is no longer active");
+        list = _martenitsaMarketplace.getListing(tokenId);
+        require(list.forSale, "You are unable to vote for this martenitsa");
+
+        hasVoted[msg.sender] = true;
+        voteCounts[tokenId] += 1;
+        _tokenIds.push(tokenId);
+    }
+
+    /**
+     * @notice Function to announce the winner of the voting. The winner receive 1 HealthToken.
+     */
+    function announceWinner() external onlyOwner {
+        require(block.timestamp >= startVoteTime + duration, "The voting is active");
+
+        uint256 winnerTokenId;
+        uint256 maxVotes = 0;
+
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            if (voteCounts[_tokenIds[i]] > maxVotes) {
+                maxVotes = voteCounts[_tokenIds[i]];
+                winnerTokenId = _tokenIds[i];
+            }
+        }
+
+        list = _martenitsaMarketplace.getListing(winnerTokenId);
+        _healthToken.distributeHealthToken(list.seller, 1);
+
+        emit WinnerAnnounced(winnerTokenId, list.seller);
+    }
+```
+
+    The duration time of voting will not be 1 days but 14 days because currently in the Ethereum blockchain, the average time to mine a block is typically around 13-15 seconds.
+
+    Based on an average block time of 14 seconds:
+
+    - There are 86,400 seconds in a day (24 hours x 60 minutes x 60 seconds).
+    - Dividing 86,400 seconds by 14 seconds per block gives the approximate number of blocks mined in one day.
+
+    So Approximately 6,171 blocks are mined each day on the Ethereum blockchain, based on an average block time of 14 seconds
+
+## Impact
+
+The voting period will last 14 days instead of 1 day which will compromise the announcement of the winner.
+
+## Tools Used
+
+manuel review
+
+## Recommendations
+
+`MartenitsaVoting` hardcode voting duration to be compliant with blocktimestamp calcul
+
+```cpp
+uint256 public duration = 6171;
+```
+
+Or use a function to calculate dynamically the blocktime average and refactor
+
+```cpp
+    /**
+     * @notice Function to start the voting.
+     */
+    function startVoting() public onlyOwner {
+        startBlock = block.number;
+        startVoteTime = block.timestamp;
+        while (startBlock == block.number) {} // wait for the next block
+        duration = calculateAverageBlockTime(block.number);
+        startVoteTime += 1;
+        emit Voting(startVoteTime, duration);
+    }
+
+    /**
+     * @notice Function to calculate the average blocktime
+     */
+    function calculateAverageBlockTime(uint256 endBlock) public view returns (uint256) {
+        require(endBlock > startBlock, "End block must be greater than start block");
+        uint256 endTime = block.timestamp; // Assume current block is the end block for simplicity
+        uint256 elapsedTime = endTime - startVoteTime;
+        uint256 blocksCount = endBlock - startBlock;
+        return elapsedTime / blocksCount;
+    }
+```
 
 # Medium Risk Findings
 
@@ -251,6 +362,8 @@ So whitespace and horzontal tab won't be accepted as design character but you ca
 ## <a id='L-02'>`MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks.</a>L-02.
 
 ### Relevant GitHub Links
+
+https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaVoting.sol#L45
 
 ## Summary
 
