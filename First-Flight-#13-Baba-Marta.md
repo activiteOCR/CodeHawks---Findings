@@ -11,6 +11,7 @@
 - ## Medium Risk Findings
   - ### [M-01. `MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.](#M-01)
   - ### [M-02. `MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.](#M-02)
+  - ### [M-03. Reentrancy in MartenitsaMarketplace.buyMartenitsa(uint256) external calls before finalizing state.](#M-03)
 - ## Low Risk Findings
   - ### [L-01. `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning](#L-01)
   - ### [L-02. `MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks.](#L-02)
@@ -395,6 +396,82 @@ constructor(address marketplace, address healthToken, address _martenitsaToken) 
         voteCounts[tokenId] += 1;
         _tokenIds.push(tokenId);
     }
+```
+
+## <a id='M-03'>Reentrancy in MartenitsaMarketplace.buyMartenitsa(uint256) external calls before finalizing state.</a>
+
+### Relevant GitHub Links
+
+https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaMarketplace.sol#L73
+
+## Summary
+
+Reentrancy in MartenitsaMarketplace.buyMartenitsa(uint256) external calls before finalizing state. The function makes external calls (martenitsaToken.updateCountMartenitsaTokensOwner) to update token ownership counts before it has completed updating the state of the contract.
+
+## Vulnerability Details
+
+The listing corresponding to the token ID is deleted after the external calls. If reentrancy occurs, the function might operate on a state that has already been changed by the reentrant call.
+
+```cpp
+    martenitsaToken.updateCountMartenitsaTokensOwner(buyer, "add");
+    martenitsaToken.updateCountMartenitsaTokensOwner(seller, "sub");
+
+    // Clear the listing
+    delete tokenIdToListing[tokenId];
+```
+
+## Impact
+
+This could potentially allow reentrancy if the external contract called (martenitsaToken) is tricked into calling back into buyMartenitsa.
+
+## Tools Used
+
+slither
+
+## Recommendations
+
+To prevent reentrancy attacks, you can apply the following techniques:
+
+Checks-Effects-Interactions Pattern: Always update your contract's state (checks and effects) before calling external contracts (interactions). In buyMartenitsa, this means you should handle the deletion of the listing and any updates to internal state variables before making any external calls.
+
+Use Reentrancy Guards: Implement a reentrancy guard, a simple state variable that can prevent a function from being called again while it's still executing. OpenZeppelin provides a ReentrancyGuard contract that you can use to secure your functions.
+
+```cpp
+pragma solidity ^0.8.21;
+
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract MartenitsaMarketplace is Ownable, ReentrancyGuard {
+    // Previous contract code...
+
+    function buyMartenitsa(uint256 tokenId) external payable nonReentrant {
+        Listing storage listing = tokenIdToListing[tokenId];
+        require(listing.forSale, "Token is not listed for sale");
+        require(msg.value >= listing.price, "Insufficient funds");
+
+        address seller = listing.seller;
+        address buyer = msg.sender;
+        uint256 salePrice = listing.price;
+
+        // Update the listing before making external calls
+        delete tokenIdToListing[tokenId];
+
+        // Perform external calls
+        martenitsaToken.updateCountMartenitsaTokensOwner(buyer, "add");
+        martenitsaToken.updateCountMartenitsaTokensOwner(seller, "sub");
+
+        emit MartenitsaSold(tokenId, buyer, salePrice);
+
+        // Safe transfer of funds
+        (bool sent,) = seller.call{value: salePrice}("");
+        require(sent, "Failed to send Ether");
+
+        // Transfer the token to the buyer
+        martenitsaToken.safeTransferFrom(seller, buyer, tokenId);
+    }
+
+    // Remainder of contract...
+}
 ```
 
 # Low Risk Findings
