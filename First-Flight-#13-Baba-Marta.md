@@ -14,7 +14,7 @@
 - ## Low Risk Findings
   - ### [L-01. `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning](#L-01)
   - ### [L-02. `MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks.](#L-02)
-- ### [L-03. `MartenitsaEvent:startEvent` `uint256 public eventEndTime` can lead to a unconsiderer revert (through built-in overflow protection) during the execution of startEvent function.](#L-03)
+  - ### [L-03. `MartenitsaEvent:startEvent` `uint256 public eventEndTime` can lead to a unconsiderer revert (through built-in overflow protection) during the execution of startEvent function.](#L-03)
 
 # <a id='contest-summary'></a>Contest Summary
 
@@ -30,7 +30,7 @@
 
 - High: 3
 - Medium: 2
-- Low: 2
+- Low: 3
 
 # High Risk Findings
 
