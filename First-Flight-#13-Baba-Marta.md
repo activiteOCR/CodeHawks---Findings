@@ -30,7 +30,7 @@
 
 ### Number of findings:
 
-- High: 2
+- High: 3
 - Medium: 2
 - Low: 2
 
@@ -87,6 +87,8 @@ manuel review
 
 ## <a id='H-02'>`MartenitsaVoting` time assignment of duration variable not correct. </a>
 
+### Relevant GitHub Links
+
 https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaVoting.sol#L15
 
 ## Summary
@@ -95,7 +97,7 @@ https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef1167
 
 ## Vulnerability Details
 
-in `MartenitsaVoting` developers have assigned the variable duration 1 days as value which is equivalent to 86,400 seconds (24 hours x 60 minutes x 60 seconds).
+In `MartenitsaVoting` developers have assigned the variable duration 1 days as value which is equivalent to 86,400 seconds (24 hours x 60 minutes x 60 seconds).
 
 ```cpp
  uint256 public duration = 1 days;
@@ -104,7 +106,8 @@ in `MartenitsaVoting` developers have assigned the variable duration 1 days as v
 Duration variable is used in `MartenitsaVoting:voteForMartenitsa` and `MartenitsaVoting:announceWinner` in require control structure of these two functions
 
 ```cpp
-/**
+
+    /**
      * @notice Function to vote for martenitsa of the sale list.
      * @param tokenId The tokenId of the martenitsa.
      */
@@ -144,14 +147,14 @@ Duration variable is used in `MartenitsaVoting:voteForMartenitsa` and `Martenits
     }
 ```
 
-    The duration time of voting will not be 1 days but 14 days because currently in the Ethereum blockchain, the average time to mine a block is typically around 13-15 seconds.
+The duration time of voting will not be 1 days but 14 days because currently in the Ethereum blockchain, the average time to mine a block is typically around 13-15 seconds.
 
-    Based on an average block time of 14 seconds:
+Based on an average block time of 14 seconds:
 
-    - There are 86,400 seconds in a day (24 hours x 60 minutes x 60 seconds).
-    - Dividing 86,400 seconds by 14 seconds per block gives the approximate number of blocks mined in one day.
+- There are 86,400 seconds in a day (24 hours x 60 minutes x 60 seconds).
+- Dividing 86,400 seconds by 14 seconds per block gives the approximate number of blocks mined in one day.
 
-    So Approximately 6,171 blocks are mined each day on the Ethereum blockchain, based on an average block time of 14 seconds
+So Approximately 6,171 blocks are mined each day on the Ethereum blockchain, based on an average block time of 14 seconds
 
 ## Impact
 
@@ -159,7 +162,7 @@ The voting period will last 14 days instead of 1 day which will compromise the a
 
 ## Tools Used
 
-manuel review
+Manuel review
 
 ## Recommendations
 
@@ -193,6 +196,115 @@ Or use a function to calculate dynamically the blocktime average and refactor
         uint256 elapsedTime = endTime - startVoteTime;
         uint256 blocksCount = endBlock - startBlock;
         return elapsedTime / blocksCount;
+    }
+```
+
+## <a id='H-03'>`MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period </a>
+
+### Relevant GitHub Links
+
+https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaVoting.sol#L57
+
+## Summary
+
+`MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period, if there is a tie, the winner will be the one with the lowest tokenID
+
+## Vulnerability Details
+
+In `MartenitsaVoting:announceWinner` the for loop iterate on the length of `_tokenIDs` array and never check if MartenitsaTokenId mapping has an equality regarding the number of votes.
+
+```cpp
+    uint256 winnerTokenId;
+    uint256 maxVotes = 0;
+
+    for (uint256 i = 0; i < _tokenIds.length; i++) {
+        if (voteCounts[_tokenIds[i]] > maxVotes) {
+            maxVotes = voteCounts[_tokenIds[i]];
+            winnerTokenId = _tokenIds[i];
+        }
+    }
+```
+
+## Impact
+
+In the case of a tie between participants, selection of the winner is unfair and can lead to user disinterest in the voting system
+
+## Tools Used
+
+Manuel review
+
+## Recommendations
+
+`MartenitsaVoting:announceWinner` must be refactored and the best way to get a real randomness for the draw consider to use chainlink VFR
+
+```cpp
+    import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
+```
+
+Add VRFConsumerBase as inheritance
+
+```cpp
+    contract VotingContract is VRFConsumerBase, Ownnable {...}
+```
+
+Modifiy the constructor and add some news state variables
+
+```cpp
+    bytes32 internal keyHash;
+    uint256 internal fee;
+    uint256[] private potentialWinners;
+
+    // Parameters for the Goerli Testnet
+    constructor(address marketplace, address healthToken, address _martenitsaToken)
+        Ownable(msg.sender)
+        VRFConsumerBase(
+            0x8FbB18354d37f7A587C60f1364b8aA2a05f69B90, // VRF Coordinator for Goerli
+            0x326C977E6efc84E512bB9C30f76E30c160eD06FB  // LINK Token for Goerli
+        )
+    {
+         _martenitsaMarketplace = MartenitsaMarketplace(marketplace);
+        _healthToken = HealthToken(healthToken);
+        martenitsaToken = IMartenitsaToken(_martenitsaToken);
+        keyHash = 0x0476f9e5d797756e0f243a643e406a30e46e83c480a91cd96a1769f9c22daa60;
+        fee = 0.1 * 10 ** 18; // 0.1 LINK
+        owner = msg.sender;  // Setting the owner to the deployer
+    }
+```
+
+Refactor `MartenitsaVoting:announceWinner`
+
+```cpp
+    function announceWinner() external onlyOwner {
+        require(block.timestamp >= startVoteTime + duration, "The voting is still active");
+        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK - please fill contract with LINK");
+
+        uint256 maxVotes = 0;
+        delete potentialWinners; // Clear previous data
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            uint256 currentVotes = voteCounts[_tokenIds[i]];
+            if (currentVotes > maxVotes) {
+                maxVotes = currentVotes;
+                delete potentialWinners;
+                potentialWinners.push(_tokenIds[i]);
+            } else if (currentVotes == maxVotes) {
+                potentialWinners.push(_tokenIds[i]);
+            }
+        }
+
+        requestRandomness(keyHash, fee);
+    }
+```
+
+Add chainlink veritable randomness function
+
+```cpp
+    function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
+        uint256 randomResult = randomness % potentialWinners.length;
+        uint256 winnerTokenId = potentialWinners[randomResult];
+
+        list = _martenitsaMarketplace.getListing(winnerTokenId);
+        _healthToken.distributeHealthToken(list.seller, 1);
+        emit WinnerAnnounced(winnerTokenId, list.seller);
     }
 ```
 
