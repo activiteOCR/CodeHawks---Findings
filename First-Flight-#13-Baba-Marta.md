@@ -7,6 +7,7 @@
 - ## High Risk Findings
   - ### [H-01. `MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions](#H-01)
   - ### [H-02. `MartenitsaVoting` time assignment of duration variable not correct.](#H-02)
+  - ### [H-03. `MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period.](#H-02)
 - ## Medium Risk Findings
   - ### [M-01. `MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.](#M-01)
   - ### [M-02. `MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.](#M-02)
