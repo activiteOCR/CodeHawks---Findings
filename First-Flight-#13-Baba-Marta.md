@@ -7,17 +7,14 @@
 - ## High Risk Findings
   - ### [H-01. `MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions](#H-01)
   - ### [H-02. `MartenitsaVoting` time assignment of duration variable not correct.](#H-02)
-  - ### [H-03. `MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period.](#H-02)
+  - ### [H-03. `MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period.](#H-03)
 - ## Medium Risk Findings
   - ### [M-01. `MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.](#M-01)
   - ### [M-02. `MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.](#M-02)
 - ## Low Risk Findings
-
   - ### [L-01. `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning](#L-01)
-
   - ### [L-02. `MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks.](#L-02)
-
-  - ### [](#L-03)
+- ### [L-03. `MartenitsaEvent:startEvent` `uint256 public eventEndTime` can lead to a unconsiderer revert (through built-in overflow protection) during the execution of startEvent function.](#L-03)
 
 # <a id='contest-summary'></a>Contest Summary
 
@@ -200,7 +197,7 @@ Or use a function to calculate dynamically the blocktime average and refactor
     }
 ```
 
-## <a id='H-03'>`MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period </a>
+## <a id='H-03'>`MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period. </a>
 
 ### Relevant GitHub Links
 
@@ -340,6 +337,8 @@ Track the number of sales per user and decrement by 1 `mapping(address => uint25
 ## <a id='M-02'>`MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.</a>
 
 ### Relevant GitHub Links
+
+https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaVoting.sol#L43
 
 ## Summary
 
@@ -519,16 +518,56 @@ Add a second check in require structure control in `MartenitsaVoting:voteForMart
 require(startVoteTime != 0 && block.timestamp < startVoteTime + duration, "The voting is no longer active");
 ```
 
-## <a id='L-03'> </a>
+## <a id='L-03'>`MartenitsaEvent:startEvent` `uint256 public eventEndTime` can lead to a unconsiderer revert (through built-in overflow protection) during the execution of startEvent function.</a>
 
 ### Relevant GitHub Links
 
+https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaEvent.sol#L33
+
 ## Summary
+
+`MartenitsaEvent:startEvent` `uint256 public eventEndTime` can lead to unconsiderer revert (through built-in overflow protection) during the execution of startEvent function.. `uint256 public eventEndTime` get the result of two uint256 variables.
 
 ## Vulnerability Details
 
+lvalue eventStartTime and eventDuration are declared both as `uint256` the result of adding these 2 lvalue can lead to unconsiderer revert (through built-in overflow protection) during the calcul of the eventEndTime lvalue, this is the operation performed on line 33 of the `MartenitsaEvent.sol` contract
+
+Nota: From version 0.8.0 onward, Solidity includes built-in overflow and underflow protection by default. Arithmetic operations automatically revert if they result in an overflow or underflow.
+
+```cpp
+    uint256 public eventStartTime;
+    uint256 public eventDuration;
+    uint256 public eventEndTime;
+```
+
+```cpp
+    eventEndTime = eventStartTime + duration;
+```
+
 ## Impact
+
+Unconsiderer revert (through built-in overflow protection) can occur during the calcul of the eventEndTime, owner the owner may not understand that this is the reason for the revert
 
 ## Tools Used
 
+Manuel review
+
 ## Recommendations
+
+Using Custom Error Handling
+
+```cpp
+    error OverflowDetected();
+```
+
+```cpp
+    function startEvent(uint256 duration) external onlyOwner {
+        eventStartTime = block.timestamp;
+        eventDuration = duration;
+        if (eventStartTime + duration < eventStartTime || eventStartTime + duration < duration) {  // Check for overflow
+            revert OverflowDetected();
+        }
+        eventEndTime = eventStartTime + duration;
+        emit EventStarted(eventStartTime, eventEndTime);
+    }
+```
