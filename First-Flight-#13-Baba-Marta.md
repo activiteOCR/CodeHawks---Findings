@@ -36,7 +36,7 @@
 
 # High Risk Findings
 
-## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions </a>H-01
+## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions </a H-01>
 
 ### Relevant GitHub Links
 
