@@ -6,6 +6,7 @@
 - ## [Results Summary](#results-summary)
 - ## High Risk Findings
   - ### [H-01. `MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions](#H-01)
+  - ### [H-02. ](#H-02)
 - ## Medium Risk Findings
   - ### [M-01. `MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.](#M-01)
   - ### [M-02. `MartenitsaVoting:voteForMartenitsa` producer can vote for himself during a vote event.](#M-02)
@@ -13,7 +14,7 @@
 
   - ### [L-01. `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning](#L-01)
 
-  - ### [](#L-02)
+  - ### [L-02. `MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks.](#L-02)
 
   - ### [](#L-03)
 
@@ -74,7 +75,7 @@ In this test we will collect 3 HealthToken while we don't have any martinetsaTok
 
 ## Impact
 
-HealthToken can be drained and user can participate to an event without owning any martenitsaToken
+HealthToken can be easily minted and user can participate to an event without owning any martenitsaToken
 
 ## Tools Used
 
@@ -247,19 +248,50 @@ So whitespace and horzontal tab won't be accepted as design character but you ca
     }
 ```
 
-## <a id='L-02'> </a>L-02.
+## <a id='L-02'>`MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks.</a>L-02.
 
 ### Relevant GitHub Links
 
 ## Summary
 
+`MartenitsaVoting:voteForMartenitsa` user can vote even startvoting is not started from the genesis block to the 86400 blocks, what represent approximatively 14 days.
+
 ## Vulnerability Details
+
+In MartenitsaVoting contract even if `startVoteTime == 0 ;` instead of `startVoteTime = block.timestamp;` it's possible for users to pass the require control structure in `MartenitsaVoting:voteForMartenitsa` during the first 86400 blocks (~14days).
+
+```cpp
+/**
+     * @notice Function to vote for martenitsa of the sale list.
+     * @param tokenId The tokenId of the martenitsa.
+     */
+    function voteForMartenitsa(uint256 tokenId) external {
+        require(!hasVoted[msg.sender], "You have already voted");
+        require(block.timestamp < startVoteTime + duration, "The voting is no longer active");
+        list = _martenitsaMarketplace.getListing(tokenId);
+        require(list.forSale, "You are unable to vote for this martenitsa");
+
+        hasVoted[msg.sender] = true;
+        voteCounts[tokenId] += 1;
+        _tokenIds.push(tokenId);
+    }
+```
 
 ## Impact
 
+Users can vote during the first 14 days even if voting is not started
+
 ## Tools Used
 
+manuel review
+
 ## Recommendations
+
+Add a second check in require structure control in `MartenitsaVoting:voteForMartenitsa`
+
+```cpp
+require(startVoteTime != 0 && block.timestamp < startVoteTime + duration, "The voting is no longer active");
+```
 
 ## <a id='L-03'> </a>L-03.
 
