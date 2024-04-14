@@ -36,7 +36,7 @@
 
 # High Risk Findings
 
-## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions</a>H-01.
+## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions </a>H-01
 
 ### Relevant GitHub Links
 
@@ -85,7 +85,7 @@ manuel review
 
 `MartenitsaToken:updateCountMartenitsaTokensOwner` must be only called by MartenitsaMarketplace contract using internal visibility specifier instead of external. Therefore you will have to refactor correctly MartenitsaMarketplace contract.
 
-## <a id='H-02'>`MartenitsaVoting` time assignment of duration variable not correct.</a>H-02.
+## <a id='H-02'>`MartenitsaVoting` time assignment of duration variable not correct. </a>H-02
 
 https://github.com/Cyfrin/2024-04-Baba-Marta/blob/5eaab7b51774d1083b926bf5ef116732c5a35cfd/src/MartenitsaVoting.sol#L15
 
