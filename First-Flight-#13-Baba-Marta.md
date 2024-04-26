@@ -30,12 +30,12 @@
 ### Number of findings:
 
 - High: 3
-- Medium: 2
+- Medium: 3
 - Low: 3
 
 # High Risk Findings
 
-## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions </a>
+## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions (validated) </a>
 
 ### Relevant GitHub Links
 
@@ -198,7 +198,7 @@ Or use a function to calculate dynamically the blocktime average and refactor
     }
 ```
 
-## <a id='H-03'>`MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period. </a>
+## <a id='H-03'>`MartenitsaVoting:announceWinner` don't manage if there is a tie at the end of the voting period. (validated as medium) </a>
 
 ### Relevant GitHub Links
 
@@ -309,7 +309,7 @@ Add chainlink veritable randomness function
 
 # Medium Risk Findings
 
-## <a id='M-01'>`MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token.</a>
+## <a id='M-01'>`MartenitsaMarketplace:collectReward` in a particular scenario amountRewards can't be correct because `_collectedRewards` mapping isn't reset if users sell at least 3 martenitsa token. (validated as high)</a>
 
 ### Relevant GitHub Links
 
@@ -476,7 +476,7 @@ contract MartenitsaMarketplace is Ownable, ReentrancyGuard {
 
 # Low Risk Findings
 
-## <a id='L-01'> `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning </a>
+## <a id='L-01'> `MartenitsaToken::createMartenitsa` design @param is not properly checked, producer can create a martenitsa token with an empty string as design or with design without any meaning (validated and selected for report) </a>
 
 ### Relevant GitHub Links
 
