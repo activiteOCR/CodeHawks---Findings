@@ -6,7 +6,7 @@
 - ## [Results Summary](#results-summary)
 - ## High Risk Findings
 
-  - ### [H-01.] `s_zkSyncUSDC` public address variable used in the `run()` function of `Deploy.s.sol` to deploy is not the address of zksync USDC (#H-01)
+  - ### [H-01.] `s_zkSyncUSDC` public address variable used in the `run()` function of `Deploy.s.sol` to deploy is not the address of zksync USDC.(#H-01)
   - ### [H-02.] In `MerkleAirdrop.sol:claim` a Winner can drain the total amount of the airdrop.(#H-02)
   - ### [H-03.] In `Deploy.s.sol` the `s_merkleRoot` variable don't reflect the amount that must be airdropped ($100).(#H-03)
   - ### [H-04.] The owner's address of `MerkleAirdrop.sol` contract is `Deploy.s.sol`, so any Ether sent to it would cause the transfer to revert without the implementation of receive function.(#H-04)
@@ -34,13 +34,13 @@ AirDropper is a gas optimized protocol built to assist with token distribution o
 
 ### Number of findings:
 
-- High:
-- Medium:
-- Low:
+- High: 5
+- Medium: 0
+- Low: 2
 
 # High Risk Findings
 
-## <a id='H-01'> `s_zkSyncUSDC` public address variable used in the `run()` function of `Deploy.s.sol` to deploy is not the address of zksync USDC</a>
+## <a id='H-01'> `s_zkSyncUSDC` public address variable used in the `run()` function of `Deploy.s.sol` to deploy is not the address of zksync USDC (Validated).</a>
 
 ### Relevant GitHub Links
 
@@ -81,7 +81,7 @@ Manual review
 Hardcode correctly the `s_zkSyncUSDC` variable, you can also add more test to be sure to address the correct contract.
 Read the name and symbol of the contract to valid it.
 
-## <a id='H-02'> In `MerkleAirdrop.sol:claim` a Winner can drain the total amount of the airdrop </a>
+## <a id='H-02'> In `MerkleAirdrop.sol:claim` a Winner can drain the total amount of the airdrop (Validated). </a>
 
 ### Relevant GitHub Links
 
@@ -140,7 +140,7 @@ In `MerkleAirdrop:claim` add these part
    hasClaimed[account] = true;
 ```
 
-## <a id='H-03'> In `Deploy.s.sol` the `s_merkleRoot` variable don't reflect the amount that must be airdropped ($100).</a>
+## <a id='H-03'> In `Deploy.s.sol` the `s_merkleRoot` variable don't reflect the amount that must be airdropped ($100) (Validated).</a>
 
 ### Relevant GitHub Links
 
@@ -276,7 +276,7 @@ Add a receive function in `Deploy.s.sol` or transfer the ownership of `MerkleAir
   }
 ```
 
-## <a id='H-05'> One of the addresses in the Merkle Tree is a contract specifically a `GnosisSafeProxy` contract</a>
+## <a id='H-05'> One of the addresses in the Merkle Tree is a contract specifically a `GnosisSafeProxy` contract (Validated).</a>
 
 ### Relevant GitHub Links
 
