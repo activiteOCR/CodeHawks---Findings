@@ -38,6 +38,10 @@ AirDropper is a gas optimized protocol built to assist with token distribution o
 - Medium: 0
 - Low: 2
 
+# <a id='final-results'></a> Final Results
+
+https://www.codehawks.com/report/clvb821kr0001jzdbi6ggixb0
+
 # High Risk Findings
 
 ## <a id='H-01'> `s_zkSyncUSDC` public address variable used in the `run()` function of `Deploy.s.sol` to deploy is not the address of zksync USDC (Validated).</a>

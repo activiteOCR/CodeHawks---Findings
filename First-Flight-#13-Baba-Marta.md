@@ -33,6 +33,10 @@
 - Medium: 3
 - Low: 3
 
+# <a id='final-results'></a> Final Results
+
+https://www.codehawks.com/report/cluseb1bf0001s4tjl2rzajup
+
 # High Risk Findings
 
 ## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions (validated) </a>
