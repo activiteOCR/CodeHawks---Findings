@@ -1,0 +1,83 @@
+# First Flight #17: Dussehra - Findings Report
+
+# Table of contents
+
+- ## [Contest Summary](#contest-summary)
+- ## [Results Summary](#results-summary)
+- ## High Risk Findings
+
+  - ### [H-01.] (#H-01)
+
+- ## Medium Risk Findings
+
+  - ### [M-01.](#M-01)
+
+- ## Low Risk Findings
+
+  - ### [L-01.] (#L-01)
+
+# <a id='contest-summary'></a>Contest Summary
+
+Dussehra, a major Hindu festival, commemorates the victory of Lord Rama, the seventh avatar of Vishnu, over the demon king Ravana. The festival symbolizes the victory of good over evil, righteousness over wickedness. The Dussehra protocol allows user to participate in the event of Dussehra.
+
+### Sponsor: CodeHawks First Flight #17
+
+### Dates: Jun 6th, 2024 (14:00) - Jun 13th, 2024 (14:00)
+
+[See more contest details here](https://www.codehawks.com/contests/clx1ufwjy006g3d8ddjdk3qfr)
+
+# <a id='results-summary'></a>Results Summary
+
+### Number of findings:
+
+- High:
+- Medium:
+- Low:
+
+# High Risk Findings
+
+## <a id='H-01'> </a>
+
+### Relevant GitHub Links
+
+## Summary
+
+## Vulnerability Details
+
+## Impact
+
+## Tools Used
+
+## Recommendations
+
+# Medium Risk Findings
+
+## <a id='M-01'> </a>
+
+### Relevant GitHub Links
+
+## Summary
+
+## Vulnerability Details
+
+## Impact
+
+## Tools Used
+
+## Recommendations
+
+# Low Risk Findings
+
+## <a id='L-01'> </a>
+
+### Relevant GitHub Links
+
+## Summary
+
+## Vulnerability Details
+
+## Impact
+
+## Tools Used
+
+## Recommendations
