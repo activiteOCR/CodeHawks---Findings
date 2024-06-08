@@ -44,7 +44,9 @@ An undercover AMA agent (anti-mafia agency) discovered a protocol used by the Ma
 
 # <a id='final-results'></a> Final Results
 
-https://www.codehawks.com/report/
+https://www.codehawks.com/report/clwgiehgu00119zwn2xx92ay8
+
+Final rank: #6
 
 # High Risk Findings
 

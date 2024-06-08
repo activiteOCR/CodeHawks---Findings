@@ -37,6 +37,8 @@
 
 https://www.codehawks.com/report/cluseb1bf0001s4tjl2rzajup
 
+Final rank: #24
+
 # High Risk Findings
 
 ## <a id='H-01'>`MartenitsaToken:updateCountMartenitsaTokensOwner` user can update the count of martenitsaTokens without any restrictions (validated) </a>

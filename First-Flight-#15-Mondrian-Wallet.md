@@ -46,6 +46,8 @@ Our team loves account abstraction, and abstract art, so we decided to combine t
 
 https://www.codehawks.com/report/clvxt8idd00014zcc81dv6rde
 
+Final rank: #3
+
 # High Risk Findings
 
 ## <a id='H-01'> When a user creates a new Mondrian wallet smart account, no Mondrian art painting NFT is minted. </a>
